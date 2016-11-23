@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+    </head>
+    <style>		
+		canvas {
+			border: 1px solid #000;
+		}
+    </style>
+    <body>
+    	<input type="button" value="铅笔" id="pen">
+    	<input type="button" value="橡皮" id="eraser">
+    	<input type="button" value="清空" id="clearall">
+    	
+    	<input type="color" id="color">
+    	<br>
+    	<canvas width="800" height="500" ></canvas>
+    </body>
+    <script>
+
+    var pen = document.getElementById("pen");
+    var ers = document.getElementById("eraser");
+    var cvs = document.getElementsByTagName("canvas")[0];
+    var width = cvs.width;
+    var height = cvs.height;
+    var color = document.getElementById("color");
+    var clearall = document.getElementById("clearall");	
+    	
+    var cts = cvs.getContext('2d');
+    var color1 = color.value;
+    
+    
+    //获取鼠标在元素中的位置
+    function cPosition(e,dom){
+    	function scroll(){
+	        return {
+	        	left:window.pageXOffset||document.documentElement.scrollLeft||document.body.scrollLeft,
+	            top:window.pageYOffset||document.documentElement.scrollTop||document.body.scrollTop
+	        }
+    	}
+          
+        var pagex = e.pageX || scroll().left + e.clientX;
+        var pagey = e.pageY || scroll().top + e.clientY;
+           
+        var xx = dom.offsetLeft;
+        var yy = dom.offsetTop;
+        return {
+        	startX : pagex - xx,
+        	startY : pagey - yy
+        }  
+          
+    }
+    
+    //点击画笔按钮时，绑定画图功能，鼠标移动事件需在按下事件内绑定
+    //点击时获取当前位置，移动时指定路径并填充
+    
+    pen.onclick = function(e){
+        cvs.onmousedown=function(e){
+        
+        	e = event||window.event;
+          
+          
+        	var startX = cPosition(e,cvs).startX;
+        	var startY = cPosition(e,cvs).startY; 
+        	cts.strokeStyle = color.value;
+            document.onmousemove=function(e){
+                e = event||window.event;
+               
+                cts.beginPath();
+                cts.moveTo(startX, startY);
+                
+                cts.lineTo(cPosition(e,cvs).startX, cPosition(e,cvs).startY);
+                cts.stroke();
+
+                //如果有坐标值的改变就改变当前路径的起始值
+                if(Math.abs(cPosition(e,cvs).startY- startY)>0 ||Math.abs( cPosition(e,cvs).startX - startX)>0){
+                    startX = cPosition(e,cvs).startX;
+                    startY = cPosition(e,cvs).startY;
+                }
+                
+            }
+            
+        }
+    }
+    //默认初始时就默认是画笔功能
+    pen.onclick();
+    cts.strokeStyle = color1;
+    //当鼠标按键抬起时，停止绘图功能或者橡皮擦功能，即将鼠标移动事件变为空
+    //当点击功能按钮时会重新绑定对应的功能
+    document.onmouseup=function(){
+        document.onmousemove='';
+    }
+    //橡皮擦功能跟铅笔功能思路雷同
+    ers.onclick=function(){
+        cvs.onmousedown=function(e){
+        e = event||window.event;
+          
+        var startX = cPosition(e,cvs).startX;
+        var startY = cPosition(e,cvs).startY;
+
+            cvs.onmousemove=function(e){
+                e = event||window.event;
+                
+                cts.clearRect(startX, startY, 10, 10);
+                if(Math.abs(cPosition(e,cvs).startY- startY)>0 ||Math.abs( cPosition(e,cvs).startX - startX)>0){
+                    startX = cPosition(e,cvs).startX;
+                    startY = cPosition(e,cvs).startY;
+
+                }
+            }
+        }
+    }
+    //清除功能，点击时清除画布所有内容
+    clearall.onclick=function(){
+        cts.clearRect(0, 0, width, height);
+    }
+
+    
+    </script>
+</html>

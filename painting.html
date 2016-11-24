@@ -99,7 +99,7 @@
         var startX = cPosition(e,cvs).startX;
         var startY = cPosition(e,cvs).startY;
 
-            cvs.onmousemove=function(e){
+            document.onmousemove=function(e){
                 e = event||window.event;
                 
                 cts.clearRect(startX, startY, 10, 10);
